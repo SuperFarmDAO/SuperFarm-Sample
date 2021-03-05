@@ -1,6 +1,6 @@
 # SuperFarm Sample
 
-Thank you for your interest in working with our team! This repository is used as a project to evaluate potential [SuperFarm](https://www.superfarm.com/) developers. It contains a single smart contract. Please fork this repository and open a pull request completing our requested tasks. All work must be performed using Solidity, JavaScript, or [ReasonML](https://reasonml.github.io/). Needless to say, all work submitted must be your own. Do not plagiarize from any other submissions.
+Thank you for your interest in working with our team! This repository is used as a project to evaluate potential [SuperFarm](https://www.superfarm.com/) developers. It contains a single smart contract. Please fork this repository and open a pull request completing our requested tasks. All work must be performed using Solidity, JavaScript, or [ReasonML](https://reasonml.github.io/). Needless to say, all work submitted must be your own. Do not plagiarize from any other submissions. We anticipate this sample to be a one or two day task.
 
 ## Goal
 
@@ -16,7 +16,7 @@ SuperFarm uses [Hardhat](https://hardhat.org/) as its Ethereum development envir
 
 ## Improving
 
-Once you've evaluate the provided smart contract, please implement any fixes or improvements you can think of. Try not to alter the fundamental contract too radically; we are trying to evaluate you on your ability to work iteratively with the sample that has been given to you. Make sure to write unit tests to validate that the contract still behaves correctly given any edits that you make.
+Once you've evaluated the provided smart contract, please implement any fixes or improvements you can think of. Try not to alter the fundamental contract too radically; we are trying to evaluate you on your ability to work iteratively with the sample that has been given to you. Make sure to write unit tests to validate that the contract still behaves correctly given any edits that you make.
 
 If you choose to make no edits to the smart contract, please provide a written explanation of why you believe the existing smart contract requires no improvements.
 
@@ -26,7 +26,7 @@ Please deploy the provided smart contract to a test network of your choice using
 
 ## Interfacing
 
-SuperFarm has chosen to use [Vue3](https://v3.vuejs.org/) for building all of its frontend interfaces. Please create a Vue3 application to interface with your deployed smart contract using Ethers. You may assume that the user visiting your application has installed and unlocked their wallet via [MetaMask](https://metamask.io/). In your final pull request, include detailed instructions with all details necessary for running and testing your application. Bonus points if you also host your application live somewhere.
+SuperFarm has chosen to use [Vue3](https://v3.vuejs.org/) for building all of its frontend interfaces. Please create a Vue3 application to interface with your deployed smart contract using Ethers. You may assume that the user visiting your application has installed and unlocked their wallet via [MetaMask](https://metamask.io/). In your final pull request, include specific instructions with all details necessary for running and testing your application. Bonus points if you also host your application live somewhere.
 
 ## Wrapping Up
 
