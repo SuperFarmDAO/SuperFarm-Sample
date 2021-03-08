@@ -1,6 +1,6 @@
 # SuperFarm Sample
 
-Thank you for your interest in working with our team! This repository is used as a project to evaluate potential [SuperFarm](https://www.superfarm.com/) developers. It contains a single smart contract. Please fork this repository and open a pull request completing our requested tasks. All work must be performed using Solidity, JavaScript, or [ReasonML](https://reasonml.github.io/). Needless to say, all work submitted must be your own. Do not plagiarize from any other submissions. We anticipate this sample to be a one or two day task.
+Thank you for your interest in working with our team! This repository is used as a project to evaluate potential [SuperFarm](https://www.superfarm.com/) developers. It contains a single smart contract. Please fork this repository and open a pull request completing our requested tasks. All work must be performed using Solidity, JavaScript, or [ReasonML](https://reasonml.github.io/). Needless to say, all work submitted must be your own. Do not plagiarize from any other submissions. We anticipate this sample to be a one or two day task. Reach out to us for a preliminary interview and we'll gladly pay you for your time spent completing this sample.
 
 ## Goal
 
