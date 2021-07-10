@@ -15,6 +15,11 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
   @author Tim Clancy
 
   This contract allows its owner to list NFT items for sale.
+  It may be used as an account's non-custodial 'shop' for ERC1155 items.
+  Items can be added from multiple ERC1155 contracts.
+  Items can have prices in ether and/or ERC20s.
+  Fees, royalties, and remaining sales proceeds are distributed as declared on deployment.
+  Any user can purchase any listed item as long as it is available and they have the funds.
 */
 contract Shop is ERC1155Holder, Ownable {
   using SafeMath for uint256;
@@ -77,7 +82,15 @@ contract Shop is ERC1155Holder, Ownable {
   mapping (uint256 => uint256) public pricePairLengths;
   mapping (uint256 => mapping (uint256 => PricePair)) public prices;
 
-  // TODO.
+    /**
+    Initializes values on deployment.
+
+    @param _name The name of the Shop contract.
+    @param _feeOwner The address to receive the shop fees.
+    @param _feePercent The value (out of 100000) representing the shop fee percentage.
+    @param _itemRoyaltyPercent The value (out of 100000) representing the royalty percentage.
+    @param _royaltyOwner The address to receive the royalties.
+  */
   constructor(string memory _name, address _feeOwner, uint256 _feePercent, uint256 _itemRoyaltyPercent, address _royaltyOwner) public {
     name = _name;
     feeOwner = _feeOwner;
