@@ -131,10 +131,6 @@ contract Shop is ERC1155Holder, Ownable {
       IERC1155 item = _items[i];
       uint256[] memory ids = _ids[i];
       uint256[] memory amounts = _amounts[i];
-      require(ids.length > 0,
-        "You must specify at least one item ID.");
-      require(ids.length == amounts.length,
-        "Item IDs length cannot be mismatched with amounts length.");
 
       // For each ERC-1155 contract, add the requested item IDs to the Shop.
       for (uint256 j = 0; j < ids.length; j++) {
@@ -180,8 +176,21 @@ contract Shop is ERC1155Holder, Ownable {
     @param _pricePairs The asset-price pairs at which to sell a single instance of the item.
   */
   function changeItemPrice(uint256 _itemId, PricePair[] memory _pricePairs) external onlyOwner {
-    for (uint i = 0; i < _pricePairs.length; i++) {
-      prices[_itemId][i] = _pricePairs[i];
+    uint higherLength;
+
+    if (pricePairLengths[_itemId] > _pricePairs.length) {
+        higherLength = pricePairLengths[_itemId];
+    } else {
+        higherLength = _pricePairs.length;
+    }
+
+    for (uint i = 0; i < higherLength; i++) {
+      if (i <= _pricePairs.length - 1) {
+          prices[_itemId][i] = _pricePairs[i];
+      } else {
+          PricePair memory pricePair = PricePair(0, address(0), 0);
+          prices[_itemId][i] = pricePair;
+      }
     }
     pricePairLengths[_itemId] = _pricePairs.length;
   }

@@ -117,6 +117,22 @@ describe('Shop', function () {
     });
 
     describe("listItems", function () {
+        it('reverts when arguments are not valid', async function () {
+            await this.erc1155.setApprovalForAll(this.shop.address, true);
+            await expect(
+                this.shop.listItems(pricePairs, [], ids, amounts)
+            ).to.be.revertedWith("You must list at least one item.");
+            await expect(
+                this.shop.listItems(pricePairs, items, [], amounts)
+            ).to.be.revertedWith("Items length cannot be mismatched with IDs length.");
+            await expect(
+                this.shop.listItems(pricePairs, items, ids, [])
+            ).to.be.revertedWith("Items length cannot be mismatched with amounts length.");
+            await expect(
+                this.shop.listItems(pricePairs, items, ids, [[0],[0]])
+            ).to.be.revertedWith("You cannot list an item with no starting amount.");
+        });
+
         it('updates the inventory, prices, and pricePairLengths', async function () {
             await this.erc1155.setApprovalForAll(this.shop.address, true);
             expect((JSON.stringify(await this.shop.inventory(0)))).to.equal(
@@ -245,7 +261,7 @@ describe('Shop', function () {
     });
 
     describe("changeItemPrice", function () {
-        it("changes itemPrices as expected", async function () {
+        it("changes itemPrices with same pricePairLengths", async function () {
             await this.erc1155.setApprovalForAll(this.shop.address, true);
             await this.shop.listItems(pricePairs, items, ids, amounts);
             expect((JSON.stringify(await this.shop.prices(0, 0)))).to.equal(
@@ -254,6 +270,7 @@ describe('Shop', function () {
             expect((JSON.stringify(await this.shop.prices(0, 1)))).to.equal(
                 JSON.stringify([pricePairs[1].assetType, pricePairs[1].asset, pricePairs[1].price])
             );
+            expect(await this.shop.pricePairLengths(0)).to.equal(2);
 
             newPricePairs = [
                 { assetType: BigNumber.from(1),
@@ -270,8 +287,73 @@ describe('Shop', function () {
             expect((JSON.stringify(await this.shop.prices(0, 1)))).to.equal(
                 JSON.stringify([newPricePairs[1].assetType, newPricePairs[1].asset, newPricePairs[1].price])
             );
+            expect(await this.shop.pricePairLengths(0)).to.equal(2);
+        });
+        it("changes itemPrices with less pricePairs", async function () {
+            await this.erc1155.setApprovalForAll(this.shop.address, true);
+            await this.shop.listItems(pricePairs, items, ids, amounts);
+            expect((JSON.stringify(await this.shop.prices(0, 0)))).to.equal(
+                JSON.stringify([pricePairs[0].assetType, pricePairs[0].asset, pricePairs[0].price])
+            );
+            expect((JSON.stringify(await this.shop.prices(0, 1)))).to.equal(
+                JSON.stringify([pricePairs[1].assetType, pricePairs[1].asset, pricePairs[1].price])
+            );
+            expect(await this.shop.pricePairLengths(0)).to.equal(2);
 
-            // TODO overwrite price pairs altogether
+            newPricePairs = [
+                { assetType: BigNumber.from(1),
+                asset: this.erc20.address,
+                price: BigNumber.from(100) },
+            ];
+            this.shop.changeItemPrice(0, newPricePairs);
+            expect((JSON.stringify(await this.shop.prices(0, 0)))).to.equal(
+                JSON.stringify([newPricePairs[0].assetType, newPricePairs[0].asset, newPricePairs[0].price])
+            );
+            expect((JSON.stringify(await this.shop.prices(0, 1)))).to.equal(
+                JSON.stringify(
+                    [BigNumber.from(0), "0x0000000000000000000000000000000000000000", BigNumber.from(0)]
+                )
+            );
+            expect(await this.shop.pricePairLengths(0)).to.equal(1);
+        });
+        it("changes itemPrices with more pricePairs", async function () {
+            await this.erc1155.setApprovalForAll(this.shop.address, true);
+            await this.shop.listItems(pricePairs, items, ids, amounts);
+            expect((JSON.stringify(await this.shop.prices(0, 0)))).to.equal(
+                JSON.stringify([pricePairs[0].assetType, pricePairs[0].asset, pricePairs[0].price])
+            );
+            expect((JSON.stringify(await this.shop.prices(0, 1)))).to.equal(
+                JSON.stringify([pricePairs[1].assetType, pricePairs[1].asset, pricePairs[1].price])
+            );
+            expect(await this.shop.pricePairLengths(0)).to.equal(2);
+
+            newPricePairs = [
+                { assetType: BigNumber.from(1),
+                asset: this.erc20.address,
+                price: BigNumber.from(100) },
+                { assetType: BigNumber.from(1),
+                asset: this.erc20.address,
+                price: BigNumber.from(1000) },
+                { assetType: BigNumber.from(1),
+                asset: this.erc20.address,
+                price: BigNumber.from(1000) },
+            ];
+            this.shop.changeItemPrice(0, newPricePairs);
+            expect((JSON.stringify(await this.shop.prices(0, 0)))).to.equal(
+                JSON.stringify([newPricePairs[0].assetType, newPricePairs[0].asset, newPricePairs[0].price])
+            );
+            expect((JSON.stringify(await this.shop.prices(0, 1)))).to.equal(
+                JSON.stringify([newPricePairs[1].assetType, newPricePairs[1].asset, newPricePairs[1].price])
+            );
+            expect((JSON.stringify(await this.shop.prices(0, 2)))).to.equal(
+                JSON.stringify([newPricePairs[2].assetType, newPricePairs[2].asset, newPricePairs[2].price])
+            );
+            expect((JSON.stringify(await this.shop.prices(0, 3)))).to.equal(
+                JSON.stringify(
+                    [BigNumber.from(0), "0x0000000000000000000000000000000000000000", BigNumber.from(0)]
+                )
+            );
+            expect(await this.shop.pricePairLengths(0)).to.equal(3);
         });
     });
 
