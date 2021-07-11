@@ -79,14 +79,17 @@ describe('Shop', function () {
         expect((await this.erc1155.balanceOf(owner.address, GOLD_ID))).to.equal(0);
         expect((await this.erc1155.balanceOf(owner.address, SILVER_ID))).to.equal(0);
         expect((await this.erc1155.balanceOf(owner.address, BRONZE_ID))).to.equal(0);
+        expect((await this.erc1155.balanceOf(owner.address, SWORD_ID))).to.equal(0);
 
         await this.erc1155.mint(owner.address, GOLD_ID, 100, ethers.utils.id('gold'));
         await this.erc1155.mint(owner.address, SILVER_ID, 1000, ethers.utils.id('silver'));
         await this.erc1155.mint(owner.address, BRONZE_ID, 1000000, ethers.utils.id('bronze'));
+        await this.erc1155.mint(owner.address, SWORD_ID, 10, ethers.utils.id('sword'));
 
         expect((await this.erc1155.balanceOf(owner.address, GOLD_ID))).to.equal(100);
         expect((await this.erc1155.balanceOf(owner.address, SILVER_ID))).to.equal(1000);
         expect((await this.erc1155.balanceOf(owner.address, BRONZE_ID))).to.equal(1000000);
+        expect((await this.erc1155.balanceOf(owner.address, SWORD_ID))).to.equal(10);
     });
 
     describe("getInventoryCount", function () {
@@ -105,14 +108,14 @@ describe('Shop', function () {
               this.erc1155.address,
             ];
             ids = [
-              [BRONZE_ID],
+              [BRONZE_ID, SWORD_ID],
             ];
             amounts = [
-              [1000],
+              [1000, 10],
             ];
 
             await this.shop.listItems(pricePairs, items, ids, amounts);
-            expect((await this.shop.getInventoryCount())).to.equal(3);
+            expect((await this.shop.getInventoryCount())).to.equal(4);
         });
     });
 
@@ -201,7 +204,6 @@ describe('Shop', function () {
             );
             expect(await this.shop.pricePairLengths(2)).to.equal(0);
 
-            // list another item
             pricePairs = [
                 { assetType: BigNumber.from(1),
                   asset: '0x0000000000000000000000000000000000000000',
@@ -211,10 +213,10 @@ describe('Shop', function () {
               this.erc1155.address,
             ];
             ids = [
-              [BRONZE_ID],
+              [BRONZE_ID, SWORD_ID],
             ];
             amounts = [
-              [1000],
+              [1000, 5],
             ];
 
             await this.shop.listItems(pricePairs, items, ids, amounts);
@@ -229,6 +231,19 @@ describe('Shop', function () {
                 JSON.stringify([pricePairs[0].assetType, pricePairs[0].asset, pricePairs[0].price])
             );
             expect(await this.shop.pricePairLengths(2)).to.equal(1);
+
+            await this.shop.listItems(pricePairs, items, ids, amounts);
+            expect((JSON.stringify(await this.shop.inventory(3)))).to.equal(
+                JSON.stringify(
+                    [this.erc1155.address, BigNumber.from(SWORD_ID), BigNumber.from(5)]
+                )
+            );
+
+            expect(await this.shop.pricePairLengths(3)).to.equal(1);
+            expect((JSON.stringify(await this.shop.prices(3, 0)))).to.equal(
+                JSON.stringify([pricePairs[0].assetType, pricePairs[0].asset, pricePairs[0].price])
+            );
+            expect(await this.shop.pricePairLengths(3)).to.equal(1);
         });
     });
 

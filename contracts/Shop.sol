@@ -146,7 +146,7 @@ contract Shop is ERC1155Holder, Ownable {
         for (uint k = 0; k < _pricePairs.length; k++) {
           prices[nextItemId + j][k] = _pricePairs[k];
         }
-        pricePairLengths[nextItemId] = _pricePairs.length;
+        pricePairLengths[nextItemId + j] = _pricePairs.length;
       }
       nextItemId = nextItemId.add(ids.length);
 
