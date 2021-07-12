@@ -22,8 +22,8 @@
             <button v-if="!state[`itemPrices${int - 1}`]" @click="getPrices(int - 1, 0)">See Prices</button>
             <div v-if="state[`itemPrices${int - 1}`]">
               <div v-for="pricePair in state[`itemPrices${int - 1}`]" :key="pricePair">
-                <button @click="buyItem(int - 1, itemObject(state[`item${int - 1}`]).amount, state[`itemPrices${int - 1}`].indexOf(pricePair), itemObject(state[`item${int - 1}`]).id)">
-                  Buy for {{displayPricePair(pricePair).amount * itemObject(state[`item${int - 1}`]).amount}} {{displayPricePair(pricePair).name}}
+                <button @click="buyItem(int - 1, itemObject(state[`item${int - 1}`]).amount, state[`itemPrices${int - 1}`].indexOf(pricePair), pricePair.assetType, displayPricePair(pricePair).price)">
+                  Buy for {{displayPricePair(pricePair).price * itemObject(state[`item${int - 1}`]).amount}} {{displayPricePair(pricePair).name}}
                 </button>
               </div>
             </div>
@@ -32,7 +32,7 @@
       </span>
     </div>
   </div>
-  <div v-if="state.connected" style="margin-top: 200px">
+  <div v-if="state.connected" style="margin: 100px 0 100px 0">
     <h3>Assets</h3>
 
         <ul v-if="state.isShopOwner">
@@ -84,16 +84,14 @@ const GOLD_ID = 0
 const SILVER_ID = 1
 const BRONZE_ID = 2
 
-const coinAddress = "0xa6f2c85FC672fdB0954130BdE1605103ED05ee5d"
+const coinAddress = "0xf59DE11783a631c0BA9f174C872469aC01c69531"
 const gameItemAddress = "0xF44Ca9057BD0E2ef2f27a820Be88D61fD177cC12"
 const shopAddress= "0x05708fF1e42E7f30b3f9d3744EC762cb7e88e247"
 const shopOwnerAddress= "0xE662f9575634dbbca894B756d1A19A851c824f00"
 const nullAddress = '0x0000000000000000000000000000000000000000'
 
 const getShopItem = async (itemId) => {
-  console.log(itemId)
   return await state.shopContract.inventory(itemId.toString()).then(function(result) {
-      // console.log(result, 'result')
       return result
   })
 }
@@ -248,20 +246,32 @@ const listItems = async () => {
   }
 }
 
-const buyItem = async (itemId, amount, assetId, accountBalanceAssetId) => {
+const buyItem = async (itemId, amount, assetId, assetType, price) => {
   let weiValue = 0
-  if (assetId == 0) {
-    weiValue = BigNumber.from(amount).mul(ethers.constants.WeiPerEther)
+  let totalPrice = amount * price;
+  if (assetType == 1) {
+    weiValue = BigNumber.from(totalPrice).mul(ethers.constants.WeiPerEther)
+  } else {
+    let allowance;
+
+    await state.erc20Contract.allowance(window.ethereum.selectedAddress, shopContract.address).then((result) => {
+      allowance = result
+    })
+
+    if (totalPrice > allowance.toNumber()) {
+      await state.erc20Contract.approve(shopContract.address, totalPrice).then(async (transaction) => {
+        await transaction.wait()
+      })
+    }
   }
+
   state.shopContract.purchaseItem(itemId, amount, assetId, { value: weiValue }).then(async (transaction) => {
     await transaction.wait()
     setItem(itemId)
-    setAccountBalanceOf(accountBalanceAssetId)
+    setAccountBalanceOf(0)
+    setAccountBalanceOf(1)
+    setAccountBalanceOf(2)
   })
-}
-
-const removePricePair = (pricePairsName, pair) => {
-  console.log('removePricePair', pricePairsName, pair)
 }
 
 const addPricePair = (assetName) => {
@@ -287,7 +297,7 @@ const removeListing = (itemId, amount) => {
 const displayPricePair = (pricePair) => {
   let result = {
     name: pricePair.asset == nullAddress ? 'ETH' : 'XMPL',
-    amount: pricePair.price.toNumber()
+    price: pricePair.price.toNumber()
   }
   return result
 }
@@ -303,7 +313,6 @@ const getPrices = async (itemId, priceId) => {
     })
   }
   state[`itemPrices${itemId}`] = pricePairs
-  console.log(pricePairs)
 }
 
 defineProps({

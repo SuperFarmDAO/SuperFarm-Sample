@@ -8,7 +8,7 @@ contract ExampleERC20 is ERC20, Ownable {
   string private TOKEN_NAME = "Example ERC20 Token";
   string private TOKEN_SYMBOL = "XMPL";
 
-  uint private constant TOTAL_SUPPLY = 123456789;
+  uint private constant TOTAL_SUPPLY = 9999000000000000000000;
 
   constructor() ERC20(TOKEN_NAME, TOKEN_SYMBOL) {
     _mint(msg.sender, TOTAL_SUPPLY);
