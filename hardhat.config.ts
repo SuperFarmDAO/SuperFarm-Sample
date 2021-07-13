@@ -2,6 +2,7 @@ import { task } from "hardhat/config"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BigNumber } from "ethers"
 import "@nomiclabs/hardhat-waffle"
+import "@nomiclabs/hardhat-etherscan"
 
 // When using the hardhat network, you may choose to fork Fuji or Avalanche Mainnet
 // This will allow you to debug contracts using the hardhat network while keeping the current network state
@@ -84,11 +85,19 @@ export default {
       chainId: 43113,
       accounts: []
     },
-    mainnet: {
+    ropsten: {
+      url: 'https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+      chainId: 3,
+      accounts: []
+    },
+    avalanche_mainnet: {
       url: 'https://api.avax.network/ext/bc/C/rpc',
       gasPrice: 225000000000,
       chainId: 43114,
       accounts: []
     }
+  },
+  etherscan: {
+    apiKey: "W423A88AYUEZ283B3BAKD8X19ZX4RIAI2P"
   }
 }

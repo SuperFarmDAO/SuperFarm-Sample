@@ -34,7 +34,6 @@ describe('Shop', function () {
 
     before(async function () {
         this.Shop = await ethers.getContractFactory("Shop");
-        this.MockContract = await ethers.getContractFactory("contracts/MockContract.sol:MockContract");
         this.ERC20 = await ethers.getContractFactory("ExampleERC20");
         this.ERC1155 = await ethers.getContractFactory("GameItem");
     });
@@ -44,9 +43,6 @@ describe('Shop', function () {
 
         this.shop = await this.Shop.deploy('testShop', feeOwner.address, 1000, 2000, royaltyOwner.address)
         await this.shop.deployed();
-
-        this.mock = await this.MockContract.deploy();
-        await this.mock.deployed();
 
         this.erc20 = await this.ERC20.deploy();
         await this.erc20.deployed();
