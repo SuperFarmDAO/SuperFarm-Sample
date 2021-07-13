@@ -15,6 +15,11 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
   @author Tim Clancy
 
   This contract allows its owner to list NFT items for sale.
+  It may be used as an account's non-custodial 'shop' for ERC1155 items.
+  Items can be added from multiple ERC1155 contracts.
+  Items can have prices in ether and/or ERC20s.
+  Fees, royalties, and remaining sales proceeds are distributed as declared on deployment.
+  Any user can purchase any listed item as long as it is available and they have the funds.
 */
 contract Shop is ERC1155Holder, Ownable {
   using SafeMath for uint256;
@@ -77,7 +82,15 @@ contract Shop is ERC1155Holder, Ownable {
   mapping (uint256 => uint256) public pricePairLengths;
   mapping (uint256 => mapping (uint256 => PricePair)) public prices;
 
-  // TODO.
+    /**
+    Initializes values on deployment.
+
+    @param _name The name of the Shop contract.
+    @param _feeOwner The address to receive the shop fees.
+    @param _feePercent The value (out of 100000) representing the shop fee percentage.
+    @param _itemRoyaltyPercent The value (out of 100000) representing the royalty percentage.
+    @param _royaltyOwner The address to receive the royalties.
+  */
   constructor(string memory _name, address _feeOwner, uint256 _feePercent, uint256 _itemRoyaltyPercent, address _royaltyOwner) public {
     name = _name;
     feeOwner = _feeOwner;
@@ -118,10 +131,6 @@ contract Shop is ERC1155Holder, Ownable {
       IERC1155 item = _items[i];
       uint256[] memory ids = _ids[i];
       uint256[] memory amounts = _amounts[i];
-      require(ids.length > 0,
-        "You must specify at least one item ID.");
-      require(ids.length == amounts.length,
-        "Item IDs length cannot be mismatched with amounts length.");
 
       // For each ERC-1155 contract, add the requested item IDs to the Shop.
       for (uint256 j = 0; j < ids.length; j++) {
@@ -137,7 +146,7 @@ contract Shop is ERC1155Holder, Ownable {
         for (uint k = 0; k < _pricePairs.length; k++) {
           prices[nextItemId + j][k] = _pricePairs[k];
         }
-        pricePairLengths[nextItemId] = _pricePairs.length;
+        pricePairLengths[nextItemId + j] = _pricePairs.length;
       }
       nextItemId = nextItemId.add(ids.length);
 
@@ -167,8 +176,21 @@ contract Shop is ERC1155Holder, Ownable {
     @param _pricePairs The asset-price pairs at which to sell a single instance of the item.
   */
   function changeItemPrice(uint256 _itemId, PricePair[] memory _pricePairs) external onlyOwner {
-    for (uint i = 0; i < _pricePairs.length; i++) {
-      prices[_itemId][i] = _pricePairs[i];
+    uint higherLength;
+
+    if (pricePairLengths[_itemId] > _pricePairs.length) {
+        higherLength = pricePairLengths[_itemId];
+    } else {
+        higherLength = _pricePairs.length;
+    }
+
+    for (uint i = 0; i < higherLength; i++) {
+      if (i <= _pricePairs.length - 1) {
+          prices[_itemId][i] = _pricePairs[i];
+      } else {
+          PricePair memory pricePair = PricePair(0, address(0), 0);
+          prices[_itemId][i] = pricePair;
+      }
     }
     pricePairLengths[_itemId] = _pricePairs.length;
   }
