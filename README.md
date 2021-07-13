@@ -46,8 +46,5 @@ ChainID: 43113
 Symbol: AVAX
 Explorer: https://cchain.explorer.avax-test.network
 
-###
-
-Ropsten verified contract
-https://ropsten.etherscan.io/address/0x5ee2c554abf271416509a5b86e4528d09949fdd4#readContract
+After you've switch to the Fuji testnet, connect your wallet.
 
