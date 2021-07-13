@@ -244,6 +244,27 @@ describe('Shop', function () {
     });
 
     describe("removeItem", function () {
+        it('reverts when a non-owner calls', async function () {
+            await expect(
+                this.shop.connect(signer1).removeItem(0, 1)
+            ).to.be.revertedWith("caller is not the owner");
+        });
+
+        it('reverts when there is not enough to remove', async function () {
+            await this.erc1155.setApprovalForAll(this.shop.address, true);
+            await this.shop.listItems(pricePairs, items, ids, amounts);
+
+            await expect(
+                this.shop.removeItem(0, 11)
+            ).to.be.revertedWith("There is not enough of your desired item to remove.");
+
+            await this.shop.removeItem(0, 10);
+
+            await expect(
+                this.shop.removeItem(0, 1)
+            ).to.be.revertedWith("There is not enough of your desired item to remove.");
+        });
+
         it("removes items as expected", async function () {
             await this.erc1155.setApprovalForAll(this.shop.address, true);
             await this.shop.listItems(pricePairs, items, ids, amounts);
@@ -272,6 +293,12 @@ describe('Shop', function () {
     });
 
     describe("changeItemPrice", function () {
+        it('reverts when a non-owner calls', async function () {
+            await expect(
+                this.shop.connect(signer1).changeItemPrice(0, pricePairs)
+            ).to.be.revertedWith("caller is not the owner");
+        });
+
         it("changes itemPrices with same pricePairLengths", async function () {
             await this.erc1155.setApprovalForAll(this.shop.address, true);
             await this.shop.listItems(pricePairs, items, ids, amounts);
@@ -433,14 +460,16 @@ describe('Shop', function () {
 
             // outsider buys
             expect((await this.erc1155.balanceOf(signer1.address, GOLD_ID))).to.equal(0);
-            await expect(() => this.shop.connect(signer1).purchaseItem(0, 10, 0, { value: 1000 }))
-              .to.changeEtherBalances([owner, signer1, feeOwner, royaltyOwner], [970, -1000, 10, 20]);
-            expect((await this.erc1155.balanceOf(signer1.address, GOLD_ID))).to.equal(10);
+            await this.erc20.transfer(signer1.address, 1000);
+            await this.erc20.connect(signer1).approve(this.shop.address, 1000);
+            await expect(() => this.shop.connect(signer1).purchaseItem(1, 1, 1))
+              .to.changeTokenBalances(this.erc20, [owner, signer1, feeOwner, royaltyOwner], [970, -1000, 10, 20]);
+            // expect((await this.erc1155.balanceOf(signer1.address, GOLD_ID))).to.equal(10);
 
             // shop owner buys
             expect((await this.erc1155.balanceOf(owner.address, SILVER_ID))).to.equal(900);
             await this.erc20.approve(this.shop.address, 1000);
-            await expect(() => this.shop.purchaseItem(1, 1, 1, { value: 1000 }))
+            await expect(() => this.shop.purchaseItem(1, 1, 1))
               .to.changeTokenBalances(this.erc20, [owner, feeOwner, royaltyOwner], [-30, 10, 20]);
             expect((await this.erc1155.balanceOf(owner.address, SILVER_ID))).to.equal(901);
 
@@ -448,7 +477,7 @@ describe('Shop', function () {
             expect((await this.erc1155.balanceOf(feeOwner.address, SILVER_ID))).to.equal(0);
             await this.erc20.transfer(feeOwner.address, 1000);
             await this.erc20.connect(feeOwner).approve(this.shop.address, 1000);
-            await expect(() => this.shop.connect(feeOwner).purchaseItem(1, 1, 1, { value: 1000 }))
+            await expect(() => this.shop.connect(feeOwner).purchaseItem(1, 1, 1))
               .to.changeTokenBalances(this.erc20, [owner, feeOwner, royaltyOwner], [970, -990, 20]);
             expect((await this.erc1155.balanceOf(feeOwner.address, SILVER_ID))).to.equal(1);
 
@@ -456,7 +485,7 @@ describe('Shop', function () {
             expect((await this.erc1155.balanceOf(royaltyOwner.address, SILVER_ID))).to.equal(0);
             await this.erc20.transfer(royaltyOwner.address, 2000);
             await this.erc20.connect(royaltyOwner).approve(this.shop.address, 2000);
-            await expect(() => this.shop.connect(royaltyOwner).purchaseItem(1, 2, 1, { value: 2000 }))
+            await expect(() => this.shop.connect(royaltyOwner).purchaseItem(1, 2, 1))
               .to.changeTokenBalances(this.erc20, [owner, feeOwner, royaltyOwner], [1940, 20, -1960]);
             expect((await this.erc1155.balanceOf(royaltyOwner.address, SILVER_ID))).to.equal(2);
         });
