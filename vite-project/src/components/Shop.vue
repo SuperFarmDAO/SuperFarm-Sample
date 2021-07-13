@@ -23,7 +23,7 @@
             <div v-if="state[`itemPrices${int - 1}`]">
               <div v-for="pricePair in state[`itemPrices${int - 1}`]" :key="pricePair">
                 <button @click="buyItem(int - 1, itemObject(state[`item${int - 1}`]).amount, state[`itemPrices${int - 1}`].indexOf(pricePair), pricePair.assetType, displayPricePair(pricePair).price)">
-                  Buy for {{displayPricePair(pricePair).price * itemObject(state[`item${int - 1}`]).amount}} {{displayPricePair(pricePair).name}}
+                  Buy for {{ ethers.utils.formatEther(displayPricePair(pricePair).price.mul(BigNumber.from(itemObject(state[`item${int - 1}`]).amount)).toString()) }} {{displayPricePair(pricePair).name}}
                 </button>
               </div>
             </div>
@@ -84,9 +84,9 @@ const GOLD_ID = 0
 const SILVER_ID = 1
 const BRONZE_ID = 2
 
-const coinAddress = "0xf59DE11783a631c0BA9f174C872469aC01c69531"
-const gameItemAddress = "0xF44Ca9057BD0E2ef2f27a820Be88D61fD177cC12"
-const shopAddress= "0x05708fF1e42E7f30b3f9d3744EC762cb7e88e247"
+const coinAddress = "0xd7Ee23a6501D7ba309b709f4357Ef4b0676628cC"
+const gameItemAddress = "0xB503518aC8F222c85b4251Afe8B18189fEaBeA83"
+const shopAddress= "0x6460168e8F609b0D9008107Fc884e32e04f92993"
 const shopOwnerAddress= "0xE662f9575634dbbca894B756d1A19A851c824f00"
 const nullAddress = '0x0000000000000000000000000000000000000000'
 
@@ -201,7 +201,7 @@ const listItems = async () => {
     return (
       { assetType: BigNumber.from(pair.assetType),
         asset: assetForPair(pair.assetType),
-        price: BigNumber.from(pair.price) }
+        price: BigNumber.from(pair.price).mul(ethers.constants.WeiPerEther) }
     )
   })
 
@@ -240,32 +240,34 @@ const listItems = async () => {
     listCurrentItems()
   } else {
     state.gameItemContract.setApprovalForAll(shopAddress, true).then(async (transaction) => {
-      await transaction.receipt()
+      await transaction.wait()
       listCurrentItems()
     })
   }
 }
 
 const buyItem = async (itemId, amount, assetId, assetType, price) => {
-  let weiValue = 0
-  let totalPrice = amount * price;
-  if (assetType == 1) {
-    weiValue = BigNumber.from(totalPrice).mul(ethers.constants.WeiPerEther)
-  } else {
+  let options = {};
+  let weiValue = BigNumber.from(amount).mul(price);
+
+  if (assetType.toNumber() == 2) {
     let allowance;
 
+  // TODO: support other ERC20s
     await state.erc20Contract.allowance(window.ethereum.selectedAddress, shopContract.address).then((result) => {
       allowance = result
     })
 
-    if (totalPrice > allowance.toNumber()) {
-      await state.erc20Contract.approve(shopContract.address, totalPrice).then(async (transaction) => {
+    if (weiValue.gt(allowance)) {
+      await state.erc20Contract.approve(shopContract.address, weiValue).then(async (transaction) => {
         await transaction.wait()
       })
     }
+  } else {
+    options = { value: weiValue }
   }
 
-  state.shopContract.purchaseItem(itemId, amount, assetId, { value: weiValue }).then(async (transaction) => {
+  state.shopContract.purchaseItem(itemId, amount, assetId, options).then(async (transaction) => {
     await transaction.wait()
     setItem(itemId)
     setAccountBalanceOf(0)
@@ -297,7 +299,7 @@ const removeListing = (itemId, amount) => {
 const displayPricePair = (pricePair) => {
   let result = {
     name: pricePair.asset == nullAddress ? 'ETH' : 'XMPL',
-    price: pricePair.price.toNumber()
+    price: pricePair.price
   }
   return result
 }
