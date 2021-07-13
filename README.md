@@ -14,7 +14,8 @@ yarn test
 
 ## Prepare to Deploy
 
-Edit the deployment script in `scripts/deploy.ts`
+Edit the deployment script in `scripts/deploy.ts`.
+Add your private key(s) as an array to your environment of choice's accounts field in hardhat.config.js.
 
 ## Deploy
 
