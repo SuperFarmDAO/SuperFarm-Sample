@@ -13,7 +13,6 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
   @title A simple Shop contract for selling ERC-1155s for Ether or
          ERC-20 tokens.
   @author Tim Clancy
-
   This contract allows its owner to list NFT items for sale.
 */
 contract Shop is ERC1155Holder, Ownable {
@@ -41,7 +40,6 @@ contract Shop is ERC1155Holder, Ownable {
   /**
     This struct tracks information about a single asset with associated price
     that an item is being sold in the shop for.
-
     @param assetType A sentinel value for the specific type of asset being used.
                      1 = Ether.
                      2 = an ERC-20 token, see `asset`.
@@ -53,13 +51,12 @@ contract Shop is ERC1155Holder, Ownable {
   */
   struct PricePair {
     uint256 assetType;
-    address asset;
     uint256 price;
+    address asset;
   }
 
   /**
     This struct tracks information about each item of inventory in the Shop.
-
     @param token The address of an ERC-1155 collection contract containing the
                  item we want to sell.
     @param id The specific ID of the item within the ERC-1155 from `token`.
@@ -77,7 +74,14 @@ contract Shop is ERC1155Holder, Ownable {
   mapping (uint256 => uint256) public pricePairLengths;
   mapping (uint256 => mapping (uint256 => PricePair)) public prices;
 
-  // TODO.
+  /** 
+    Deploys the contract with initial values.
+    @param _name The name of the Shop contract.
+    @param _feeOwner The receiver of shop fees.
+    @param _feePercent The value in Basis Points to be given to feeOwner.
+    @param _itemRoyaltyPercent The value in Basis Points to be given to royaltyOwner.
+    @param _royaltyOwner The receiver of royalties.
+  */
   constructor(string memory _name, address _feeOwner, uint256 _feePercent, uint256 _itemRoyaltyPercent, address _royaltyOwner) public {
     name = _name;
     feeOwner = _feeOwner;
@@ -89,7 +93,6 @@ contract Shop is ERC1155Holder, Ownable {
 
   /**
     Returns the number of items in the Shop's inventory.
-
     @return the number of items in the Shop's inventory.
   */
   function getInventoryCount() external view returns (uint256) {
@@ -97,12 +100,15 @@ contract Shop is ERC1155Holder, Ownable {
   }
 
   /**
-    Allows the Shop owner to list a new set of NFT items for sale.
-
+    Allows the Shop owner to list a new set of NFT items for sale from multiple ERC1155 contracts.
     @param _pricePairs The asset address to price pairings to use for selling
                        each item.
     @param _items The array of ERC-1155 item contracts to sell from.
-    @param _ids The specific ERC-1155 item IDs to sell.
+    @param _ids The specific ERC-1155 item IDs to s
+
+
+
+ell.
     @param _amounts The amount of inventory being listed for each item.
   */
   function listItems(PricePair[] memory _pricePairs, IERC1155[] calldata _items, uint256[][] calldata _ids, uint256[][] calldata _amounts) external onlyOwner {
@@ -118,10 +124,6 @@ contract Shop is ERC1155Holder, Ownable {
       IERC1155 item = _items[i];
       uint256[] memory ids = _ids[i];
       uint256[] memory amounts = _amounts[i];
-      require(ids.length > 0,
-        "You must specify at least one item ID.");
-      require(ids.length == amounts.length,
-        "Item IDs length cannot be mismatched with amounts length.");
 
       // For each ERC-1155 contract, add the requested item IDs to the Shop.
       for (uint256 j = 0; j < ids.length; j++) {
@@ -137,7 +139,7 @@ contract Shop is ERC1155Holder, Ownable {
         for (uint k = 0; k < _pricePairs.length; k++) {
           prices[nextItemId + j][k] = _pricePairs[k];
         }
-        pricePairLengths[nextItemId] = _pricePairs.length;
+        pricePairLengths[nextItemId + j] = _pricePairs.length;
       }
       nextItemId = nextItemId.add(ids.length);
 
@@ -148,13 +150,12 @@ contract Shop is ERC1155Holder, Ownable {
 
   /**
     Allows the Shop owner to remove items.
-
     @param _itemId The id of the specific inventory item of this shop to remove.
     @param _amount The amount of the specified item to remove.
   */
   function removeItem(uint256 _itemId, uint256 _amount) external onlyOwner {
     ShopItem storage item = inventory[_itemId];
-    require(item.amount >= _amount && item.amount != 0,
+    require(item.amount >= _amount && _amount > 0,
       "There is not enough of your desired item to remove.");
     inventory[_itemId].amount = inventory[_itemId].amount.sub(_amount);
     item.token.safeTransferFrom(address(this), msg.sender, item.id, _amount, "");
@@ -162,7 +163,6 @@ contract Shop is ERC1155Holder, Ownable {
 
   /**
     Allows the Shop owner to adjust the prices of an NFT item set.
-
     @param _itemId The id of the specific inventory item of this shop to adjust.
     @param _pricePairs The asset-price pairs at which to sell a single instance of the item.
   */
@@ -176,7 +176,6 @@ contract Shop is ERC1155Holder, Ownable {
   /**
     Allows any user to purchase an item from this Shop provided they have enough
     of the asset being used to purchase with.
-
     @param _itemId The ID of the specific inventory item of this shop to buy.
     @param _amount The amount of the specified item to purchase.
     @param _assetId The index of the asset from the item's asset-price pairs to
@@ -184,7 +183,7 @@ contract Shop is ERC1155Holder, Ownable {
   */
   function purchaseItem(uint256 _itemId, uint256 _amount, uint256 _assetId) external payable {
     ShopItem storage item = inventory[_itemId];
-    require(item.amount >= _amount && item.amount != 0,
+    require(item.amount >= _amount && _amount > 0,
       "There is not enough of your desired item in stock to purchase.");
     require(_assetId < pricePairLengths[_itemId],
       "Your specified asset ID is not valid.");
@@ -195,8 +194,8 @@ contract Shop is ERC1155Holder, Ownable {
       uint256 etherPrice = sellingPair.price.mul(_amount);
       require(msg.value >= etherPrice,
         "You did not send enough Ether to complete this purchase.");
-      uint256 feeValue = msg.value.mul(feePercent).div(100000);
-      uint256 royaltyValue = msg.value.mul(itemRoyaltyPercent).div(100000);
+      uint256 feeValue = msg.value.mul(feePercent).div(10000);
+      uint256 royaltyValue = msg.value.mul(itemRoyaltyPercent).div(10000);
       (bool success, ) = payable(feeOwner).call{ value: feeValue }("");
       require(success, "Platform fee transfer failed.");
       (success, ) = payable(royaltyOwner).call{ value: royaltyValue }("");
@@ -212,8 +211,8 @@ contract Shop is ERC1155Holder, Ownable {
       uint256 tokenPrice = sellingPair.price.mul(_amount);
       require(sellingAsset.balanceOf(msg.sender) >= tokenPrice,
         "You do not have enough token to complete this purchase.");
-      uint256 feeValue = tokenPrice.mul(feePercent).div(100000);
-      uint256 royaltyValue = tokenPrice.mul(itemRoyaltyPercent).div(100000);
+      uint256 feeValue = tokenPrice.mul(feePercent).div(10000);
+      uint256 royaltyValue = tokenPrice.mul(itemRoyaltyPercent).div(10000);
       sellingAsset.safeTransferFrom(msg.sender, feeOwner, feeValue);
       sellingAsset.safeTransferFrom(msg.sender, royaltyOwner, royaltyValue);
       sellingAsset.safeTransferFrom(msg.sender, owner(), tokenPrice.sub(feeValue).sub(royaltyValue));

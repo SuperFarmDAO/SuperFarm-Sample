@@ -1,0 +1,54 @@
+//===Suggestion to make a function which accepts only one IERC1155 as an external function (WARNING: Will break interface inputs)
+function listItem(PricePair memory _pricePair, IERC1155 calldata _item, uint256[] calldata _ids, uint256[] calldata _amounts) external {
+
+      for (uint256 i = 0; i < ids.length; i++) {
+        uint256 id = ids[i];
+        uint256 amount = amounts[i];
+        require(amount > 0,
+          "You cannot list an item with no starting amount.");
+        inventory[nextItemId + i] = ShopItem({
+          token: _item,
+          id: id,
+          amount: amount
+        });
+        
+        prices[nextItemId + i][0] = _pricePair;
+        
+        pricePairLengths[nextItemId + i] = _pricePair.length;
+      }
+      nextItemId = nextItemId.add(ids.length);
+
+      // Batch transfer the listed items to the Shop contract.
+      item.safeBatchTransferFrom(msg.sender, address(this), id, amount, "");
+}
+
+//===Suggestion to make a function which accepts an array of ShopItems as an external onlyOwner function (WARNING: Will break interface inputs)
+
+//PricePair and the Item (IERC1155) combined
+struct ShopItem {
+    address token; //IERC1155
+    address asset; //PricePair
+    
+    uint256 id; //Inside IERC1155
+    uint256 amount; //Inside IERC1155
+    uint256 assetType; //ERC20
+    uint256 price; //ERC20
+  }
+
+  mapping (uint256 => ShopItem) public inventory;
+
+  function listItems(ShopItems[] _shopItems) external onlyOwner {
+    for (int i = 0; i < _shopItems.length; i++)
+    {
+      inventory[nextItemId] = ShopItem({
+          token: _shopItems[i].token,
+          asset: _shopItems[i].asset,
+          id: id, _shopItems[i].id
+          amount: _shopItems[i].amount,
+          assetType: _shopItems[i].assetType,
+          price: _shopItems[i].price
+        });
+        _shopItems[i].safeBatchTransferFrom(msg.sender, address(this), _shopItems.id, _shopItems.amounts, "");
+        nextItemId = nextItemId.add(1);
+    }
+  }
