@@ -1,0 +1,48 @@
+{
+    "name": "superfarm-sample",
+    "version": "1.0.0",
+    "description": "SuperFarm sample contract",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/khlrst/SuperFarm-Sample.git"
+    },
+    "bugs": {
+        "url": "https://github.com/khlrst/SuperFarm-Sample/issues"
+    },
+    "homepage": "https://github.com/khlrst/SuperFarm-Sample#readme",
+    "directories": {
+        "test": "test"
+    },
+    "scripts": {
+        "rebuild": "rm docs/* && rmdir docs && hh clean && hh compile"
+    },
+    "devDependencies": {
+        "@nomiclabs/hardhat-ethers": "^2.0.2",
+        "@nomiclabs/hardhat-etherscan": "^2.1.5",
+        "@nomiclabs/hardhat-waffle": "^2.0.1",
+        "@openzeppelin/contracts": "^3.4.0",
+        "@typechain/ethers-v5": "^7.0.1",
+        "@typechain/hardhat": "^2.2.0",
+        "@types/bignumber.js": "^5.0.0",
+        "@types/chai": "^4.2.21",
+        "@types/mocha": "^9.0.0",
+        "@types/mocha-steps": "^1.3.0",
+        "@types/node": "^16.6.1",
+        "chai": "^4.3.4",
+        "dotenv": "^10.0.0",
+        "eslint": "^7.32.0",
+        "eslint-config-airbnb-base": "^14.2.0",
+        "eslint-plugin-import": "^2.18.2",
+        "ethereum-waffle": "^3.4.0",
+        "ethers": "^5.4.4",
+        "hardhat": "^2.6.0",
+        "hardhat-docgen": "^1.1.1",
+        "hardhat-gas-reporter": "^1.0.4",
+        "mocha-steps": "^1.3.0",
+        "solidity-coverage": "^0.7.17",
+        "ts-mocha": "^8.0.0",
+        "ts-node": "^10.2.0",
+        "typechain": "^5.1.2",
+        "typescript": "^4.3.5"
+    }
+}
