@@ -42,6 +42,7 @@ contract Shop is ERC1155Holder, Ownable {
     This struct tracks information about a single asset with associated price
     that an item is being sold in the shop for.
 
+    @param price The amount of the specified `assetType` and `asset` to charge.
     @param assetType A sentinel value for the specific type of asset being used.
                      1 = Ether.
                      2 = an ERC-20 token, see `asset`.
@@ -49,12 +50,11 @@ contract Shop is ERC1155Holder, Ownable {
                  If the `assetType` is 1, we ignore this field.
                  If the `assetType` is 2, we use this address to find the ERC-20
                  token that we should be specifically charging with.
-    @param price The amount of the specified `assetType` and `asset` to charge.
   */
   struct PricePair {
+    uint256 price;
     uint256 assetType;
     address asset;
-    uint256 price;
   }
 
   /**
@@ -77,8 +77,21 @@ contract Shop is ERC1155Holder, Ownable {
   mapping (uint256 => uint256) public pricePairLengths;
   mapping (uint256 => mapping (uint256 => PricePair)) public prices;
 
-  // TODO.
-  constructor(string memory _name, address _feeOwner, uint256 _feePercent, uint256 _itemRoyaltyPercent, address _royaltyOwner) public {
+     
+  /** Deploys the contract 
+     @param _name name of the shop
+     @param _feeOwner address whom receives fees from shop (1e5 is 100%)
+     @param _feePercent percent paid to owner as fee 1e
+     @param _itemRoyaltyPercent  percent paid to royalty receiver (1e5 is 100%)
+     @param _royaltyOwner address whom receives royalty fee 
+   */
+  constructor(
+    string memory _name,
+    address _feeOwner,
+    uint256 _feePercent,
+    uint256 _itemRoyaltyPercent,
+    address _royaltyOwner
+  ) public {
     name = _name;
     feeOwner = _feeOwner;
     feePercent = _feePercent;
