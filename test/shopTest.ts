@@ -49,11 +49,11 @@ describe("Testing shop contract", () => {
     }
   }
 
-  before(async function () {
+  before( function () {
     [Owner, RoyaltyOwner, RichBuyer, PoorBuyer] = await ethers.getSigners();
   });
   
-  mocha.step("STEP 0: deploying contracts", async function () {
+  mocha.step("STEP 0: deploying contracts",  function () {
     const ShopContract = await ethers.getContractFactory("Shop");
     Shop = await ShopContract.deploy(
       ShopName,
@@ -103,7 +103,7 @@ describe("Testing shop contract", () => {
 
   })
 
-  mocha.step("STEP 1: list new item for sale", async function () {
+  mocha.step("STEP 1: list new item for sale",  function () {
     expect( await Shop.connect(Owner).listItems(
       PricePairs,
       [],
@@ -140,10 +140,10 @@ describe("Testing shop contract", () => {
     );
 
     // TODO check that emits after 
-      
+
   })
 
-  mocha.step("STEP 2: remove items from sale", async function () {
+  mocha.step("STEP 2: remove items from sale",  function () {
     expect( await Shop.connect(Owner).removeItem(
 
     )).to.be.revertedWith(
@@ -155,17 +155,14 @@ describe("Testing shop contract", () => {
 
   })
 
-  mocha.step("STEP 3: change item's price", async function () {
+  mocha.step("STEP 3: change item's price",  function () {
     // TODO Normal operation
   })
 
-  mocha.step("STEP 4: purchase item from shop", async function () {
+  mocha.step("STEP 4: purchase item from shop",  function () {
     
   })
 
-  mocha.step("", async function () {
-    
-  })
   
 
 });
