@@ -28,7 +28,8 @@ async function main() {
         process.env.SHOP_ROYALTY_PERCENT as string,
         process.env.SHOP_ROYALTY_FEE_OWNER as string 
     );
-   await shop.deployed()
+   await shop.deployed();
+   console.log(`Shop has been deployed at ${shop.address}`);
 
     //Sync env file
     fs.appendFileSync(`.env-${network}`, 

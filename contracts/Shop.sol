@@ -20,6 +20,9 @@ contract Shop is ERC1155Holder, Ownable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
+  /// value used for fees calcultion and determine precision of division
+  uint public precision = 100000;
+
   /// A version number for this Shop contract's interface.
   uint256 public version = 1;
 
@@ -106,8 +109,8 @@ contract Shop is ERC1155Holder, Ownable {
     require (
       _feeOwner != address(0) && _royaltyOwner != address(0) &&
       _feePercent > 0 && _itemRoyaltyPercent > 0 && 
-      _feePercent.add(_itemRoyaltyPercent) < 100000,
-      "Wrong arguments for constructor"
+      _feePercent.add(_itemRoyaltyPercent) < precision,
+      "Shop: Wrong arguments for constructor"
     );
     name = _name;
     feeOwner = _feeOwner;
@@ -137,11 +140,11 @@ contract Shop is ERC1155Holder, Ownable {
   */
   function listItems(PricePair[] memory _pricePairs, IERC1155[] calldata _items, uint256[][] calldata _ids, uint256[][] calldata _amounts) external onlyOwner {
     require(_items.length > 0,
-      "You must list at least one item.");
+      "Shop: You must list at least one item.");
     require(_items.length == _ids.length,
-      "Items length cannot be mismatched with IDs length.");
+      "Shop: Items length cannot be mismatched with IDs length.");
     require(_items.length == _amounts.length,
-      "Items length cannot be mismatched with amounts length.");
+      "Shop: Items length cannot be mismatched with amounts length.");
 
     uint256 count = nextItemId; 
     
@@ -156,7 +159,7 @@ contract Shop is ERC1155Holder, Ownable {
         uint256 id = ids[j];
         uint256 amount = amounts[j];
         require(amount > 0,
-          "You cannot list an item with no starting amount.");
+          "Shop: You cannot list an item with no starting amount.");
         inventory[count + j] = ShopItem({
           token: item,
           id: id,
@@ -185,7 +188,7 @@ contract Shop is ERC1155Holder, Ownable {
   function removeItem(uint256 _itemId, uint256 _amount) external onlyOwner {
     ShopItem storage item = inventory[_itemId];
     require(item.amount >= _amount && item.amount != 0,
-      "There is not enough of your desired item to remove.");
+      "Shop: There is not enough of your desired item to remove.");
     inventory[_itemId].amount = inventory[_itemId].amount.sub(_amount);
     item.token.safeTransferFrom(address(this), msg.sender, item.id, _amount, "");
   }
@@ -215,24 +218,24 @@ contract Shop is ERC1155Holder, Ownable {
   function purchaseItem(uint256 _itemId, uint256 _amount, uint256 _assetId) external payable {
     ShopItem storage item = inventory[_itemId];
     require(item.amount >= _amount && item.amount != 0,
-      "There is not enough of your desired item in stock to purchase.");
+      "Shop: There is not enough of your desired item in stock to purchase.");
     require(_assetId < pricePairLengths[_itemId],
-      "Your specified asset ID is not valid.");
+      "Shop: Your specified asset ID is not valid.");
     PricePair memory sellingPair = prices[_itemId][_assetId];
 
     // If the sentinel value for the Ether asset type is found, sell for Ether.
     if (sellingPair.assetType == AssetType.eth) {
       uint256 etherPrice = sellingPair.price.mul(_amount);
       require(msg.value >= etherPrice,
-        "You did not send enough Ether to complete this purchase.");
-      uint256 feeValue = msg.value.mul(feePercent).div(100000);
-      uint256 royaltyValue = msg.value.mul(itemRoyaltyPercent).div(100000);
+        "Shop: You did not send enough Ether to complete this purchase.");
+      uint256 feeValue = msg.value.mul(feePercent).div(precision);
+      uint256 royaltyValue = msg.value.mul(itemRoyaltyPercent).div(precision);
       (bool success, ) = payable(feeOwner).call{ value: feeValue }("");
-      require(success, "Platform fee transfer failed.");
+      require(success, "Shop: Platform fee transfer failed.");
       (success, ) = payable(royaltyOwner).call{ value: royaltyValue }("");
-      require(success, "Creator royalty transfer failed.");
+      require(success, "Shop: Creator royalty transfer failed.");
       (success, ) = payable(owner()).call{ value: msg.value.sub(feeValue).sub(royaltyValue) }("");
-      require(success, "Shop owner transfer failed.");
+      require(success, "Shop: Shop owner transfer failed.");
       inventory[_itemId].amount = inventory[_itemId].amount.sub(_amount);
       item.token.safeTransferFrom(address(this), msg.sender, item.id, _amount, "");
 
@@ -241,9 +244,9 @@ contract Shop is ERC1155Holder, Ownable {
       IERC20 sellingAsset = IERC20(sellingPair.asset);
       uint256 tokenPrice = sellingPair.price.mul(_amount);
       require(sellingAsset.balanceOf(msg.sender) >= tokenPrice,
-        "You do not have enough token to complete this purchase.");
-      uint256 feeValue = tokenPrice.mul(feePercent).div(100000);
-      uint256 royaltyValue = tokenPrice.mul(itemRoyaltyPercent).div(100000);
+        "Shop: You do not have enough token to complete this purchase.");
+      uint256 feeValue = tokenPrice.mul(feePercent).div(precision);
+      uint256 royaltyValue = tokenPrice.mul(itemRoyaltyPercent).div(precision);
       sellingAsset.safeTransferFrom(msg.sender, feeOwner, feeValue);
       sellingAsset.safeTransferFrom(msg.sender, royaltyOwner, royaltyValue);
       sellingAsset.safeTransferFrom(msg.sender, owner(), tokenPrice.sub(feeValue).sub(royaltyValue));

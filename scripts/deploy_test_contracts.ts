@@ -28,9 +28,7 @@ async function main() {
     console.log(`ShopToken deployed to ${shopToken.address}`)
 
     const SHOPITEMS = await ethers.getContractFactory("ShopItems");
-    shopItems = await SHOPITEMS.deploy(
-        process.env.ITEM_TOKEN_URI as string
-    );
+    shopItems = await SHOPITEMS.deploy();
     await shopItems.deployed()
     console.log(`ShopItems deployed to ${shopItems.address}`)
 
