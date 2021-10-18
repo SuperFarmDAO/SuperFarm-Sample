@@ -104,7 +104,7 @@ describe("Testing shop contract", function(){
     await ShopItems.connect(minter).mint(Owner.address, items.vodka.id, items.vodka.amount, items.vodka.data); // assumed as FT
     await ShopItems.connect(minter).mint(Owner.address, items.ushanka.id, items.ushanka.amount, items.ushanka.data); // assumed as NFT 
     
-    await ShopItems.connect(minter).setApprovalForAll(Owner.address, true)
+    await ShopItems.connect(Owner).setApprovalForAll(Shop.address, true)
 
   })
 
@@ -155,40 +155,59 @@ describe("Testing shop contract", function(){
     expect((await Shop.prices(4, 0)).assetType).to.be.eq(ethers.BigNumber.from(0))
     expect((await Shop.prices(4, 0)).asset).to.be.eq(zeroAddress)
 
-    expect( await Shop.connect(Owner).listItems(
-      PricePairs,
-      [ShopItems.address],
-      [[items.ruble.amount]],
-      [[items.ruble.amount, items.balalayka.amount, items.vodka.amount, items.ushanka.amount]]
-    )).to.be.revertedWith(
-      "Items length cannot be mismatched with IDs length."
-    );
-
-    expect( await Shop.connect(Owner).listItems(
-      PricePairs,
-      [ShopItems.address],
-      [[items.ruble.id, items.balalayka.id, items.vodka.id, items.ushanka.id]],
-      [[items.ruble.id]]
-    )).to.be.revertedWith(
-      "Items length cannot be mismatched with amounts length."
-    );
+    // expect( await Shop.connect(Owner).listItems(
+    //   PricePairs,
+    //   [ShopItems.address],
+    //   [[items.ruble.amount]],
+    //   [[items.ruble.amount, items.balalayka.amount, items.vodka.amount, items.ushanka.amount]]
+    // )).to.be.revertedWith(
+    //   "Items length cannot be mismatched with IDs length."
+    // );
+// 
+    // expect( await Shop.connect(Owner).listItems(
+    //   PricePairs,
+    //   [ShopItems.address],
+    //   [[items.ruble.id, items.balalayka.id, items.vodka.id, items.ushanka.id]],
+    //   [[items.ruble.id]]
+    // )).to.be.revertedWith(
+    //   "Items length cannot be mismatched with amounts length."
+    // );
 
   })
 
   mocha.step("STEP 2: remove items from sale",  async ()=>{
     // TODO normal operation
-    await Shop.removeItem(0, 3)
+    await Shop.connect(Owner).removeItem(0, 3);
     expect((await Shop.inventory(0)).amount).to.be.eq(ethers.BigNumber.from(items.ruble.amount - 3))
     
-    expect( await Shop.connect(Owner).removeItem(
-      Shop.removeItem(0, items.ruble.amount)
-    )).to.be.revertedWith(
+    await expect( 
+      Shop.connect(Owner).removeItem(
+        0, items.ruble.amount
+      )
+    ).to.be.revertedWith(
       "There is not enough of your desired item to remove."
     );
   })
 
   mocha.step("STEP 3: change item's price",  async ()=>{
     // TODO Normal operation
+    let newPricePairs = [
+      {assetType: 1, price: ethers.utils.parseEther("300"), asset: zeroAddress},
+      {assetType: 2, price: ethers.utils.parseEther("300"), asset: ShopToken.address} 
+    ];
+
+    await Shop.changeItemPrice(
+      3,
+      [newPricePairs[0], newPricePairs[1]]
+    );
+
+    expect((await Shop.prices(3, 0)).price).to.be.eq(newPricePairs[0].price)
+    expect((await Shop.prices(3, 0)).assetType).to.be.eq(newPricePairs[0].assetType)
+    expect((await Shop.prices(3, 0)).asset).to.be.eq(zeroAddress)
+    expect((await Shop.prices(3, 1)).price).to.be.eq(newPricePairs[1].price)
+    expect((await Shop.prices(3, 1)).assetType).to.be.eq(newPricePairs[1].assetType)
+    expect((await Shop.prices(3, 1)).asset).to.be.eq(ShopToken.address)
+
   })
 
   mocha.step("STEP 4: purchase item from shop",  async ()=>{
