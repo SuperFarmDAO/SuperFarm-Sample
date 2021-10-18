@@ -39,22 +39,33 @@ contract Shop is ERC1155Holder, Ownable {
   address public royaltyOwner;
 
   /**
+      Determine s type of asset
+      @param native represent that asset is native token  
+      @param erc20 respresent that asset is erc20 token
+   */
+  enum AssetType {
+    none,
+    eth,
+    erc20
+  }
+
+  /**
     This struct tracks information about a single asset with associated price
     that an item is being sold in the shop for.
 
-    @param price The amount of the specified `assetType` and `asset` to charge.
     @param assetType A sentinel value for the specific type of asset being used.
-                     1 = Ether.
-                     2 = an ERC-20 token, see `asset`.
+                     eth = Ether.
+                     erc20 = an ERC-20 token, see `asset`.
     @param asset Some more specific information about the asset to charge in.
                  If the `assetType` is 1, we ignore this field.
                  If the `assetType` is 2, we use this address to find the ERC-20
                  token that we should be specifically charging with.
+    @param price The amount of the specified `assetType` and `asset` to charge.
   */
   struct PricePair {
-    uint256 price;
-    uint256 assetType;
+    AssetType assetType;
     address asset;
+    uint256 price;
   }
 
   /**
@@ -92,6 +103,12 @@ contract Shop is ERC1155Holder, Ownable {
     uint256 _itemRoyaltyPercent,
     address _royaltyOwner
   ) public {
+    require (
+      _feeOwner != address(0) && _royaltyOwner != address(0) &&
+      _feePercent > 0 && _itemRoyaltyPercent > 0 && 
+      _feePercent.add(_itemRoyaltyPercent) < 100000,
+      "Wrong arguments for constructor"
+    );
     name = _name;
     feeOwner = _feeOwner;
     feePercent = _feePercent;
@@ -126,37 +143,37 @@ contract Shop is ERC1155Holder, Ownable {
     require(_items.length == _amounts.length,
       "Items length cannot be mismatched with amounts length.");
 
+    uint256 count = nextItemId; 
+    
     // Iterate through every specified ERC-1155 contract to list items.
     for (uint256 i = 0; i < _items.length; i++) {
       IERC1155 item = _items[i];
       uint256[] memory ids = _ids[i];
       uint256[] memory amounts = _amounts[i];
-      require(ids.length > 0,
-        "You must specify at least one item ID.");
-      require(ids.length == amounts.length,
-        "Item IDs length cannot be mismatched with amounts length.");
-
+      
       // For each ERC-1155 contract, add the requested item IDs to the Shop.
       for (uint256 j = 0; j < ids.length; j++) {
         uint256 id = ids[j];
         uint256 amount = amounts[j];
         require(amount > 0,
           "You cannot list an item with no starting amount.");
-        inventory[nextItemId + j] = ShopItem({
+        inventory[count + j] = ShopItem({
           token: item,
           id: id,
           amount: amount
         });
         for (uint k = 0; k < _pricePairs.length; k++) {
-          prices[nextItemId + j][k] = _pricePairs[k];
+          prices[count + j][k] = _pricePairs[k];
         }
-        pricePairLengths[nextItemId] = _pricePairs.length;
+        pricePairLengths[count+j] = _pricePairs.length;
       }
-      nextItemId = nextItemId.add(ids.length);
+      count = count.add(ids.length);
 
       // Batch transfer the listed items to the Shop contract.
       item.safeBatchTransferFrom(msg.sender, address(this), ids, amounts, "");
     }
+
+    nextItemId = count;
   }
 
   /**
@@ -204,7 +221,7 @@ contract Shop is ERC1155Holder, Ownable {
     PricePair memory sellingPair = prices[_itemId][_assetId];
 
     // If the sentinel value for the Ether asset type is found, sell for Ether.
-    if (sellingPair.assetType == 1) {
+    if (sellingPair.assetType == AssetType.eth) {
       uint256 etherPrice = sellingPair.price.mul(_amount);
       require(msg.value >= etherPrice,
         "You did not send enough Ether to complete this purchase.");
