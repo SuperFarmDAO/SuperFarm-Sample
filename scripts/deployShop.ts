@@ -28,10 +28,7 @@ async function main() {
     );
    await shop.deployed()
    console.log('Shop address:', shop.address);
-   
-    //Sync env file
-    fs.appendFileSync(`.env-${network}`, 
-    `SHOP_ADDRESS=${shop.address}\r`)
+
 }
 main()
   .then(() => process.exit(0))

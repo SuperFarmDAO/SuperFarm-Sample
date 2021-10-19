@@ -11,8 +11,7 @@ for (const k in envConfig) {
 }
 
 async function main() {
-  // This is to manually compile incase of Node when the script is run directly
-  // await hre.run('compile');
+
   let owner: SignerWithAddress;
   let TestERC1155 : ContractFactory;
   let testERC1155: Contract;
