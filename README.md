@@ -31,7 +31,9 @@ Suggestions that do break the logic of the contract:\
 - Since `listItems` function writes same PricePairs for every item, I'd make a map of PricePairs, for every item.id there is a set of PricePairs.
 - Make another non-custodial `listItems` type function with `external` modifier which accepts single IERC1155 hence to letting other people not only list their tokens but also pay the gas for it.
 
-# Etherscan verification
+# Deployment & Etherscan verification
 
-Rinkeby:\
+Rinkeby:
 - Shop contract address: 0x1918aa7de6b798371fa18BACF1792B6afad1244E
+- ERC20 asset address: 0x9d826a57dF3a93de5708E83d89dD410FC0B83BD4
+- ERC1155 item address: 0x688921Db1dFC814Ba01da733c4eFc69A9bf0B381
