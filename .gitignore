@@ -1,0 +1,12 @@
+node_modules
+.env
+.mocha*
+coverage
+coverage.json
+typechain
+.eslint*
+.npm*
+
+#Hardhat files
+cache
+artifacts

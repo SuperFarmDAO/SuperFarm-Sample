@@ -1,33 +1,37 @@
-# SuperFarm Sample
+# ENVIROMENT
 
-Thank you for your interest in working with our team! This repository is used as a project to evaluate potential [SuperFarm](https://www.superfarm.com/) developers. It contains a single smart contract. Please fork this repository and open a pull request completing our requested tasks. All work must be performed using Solidity, JavaScript, or [ReasonML](https://reasonml.github.io/). Needless to say, all work submitted must be your own. Do not plagiarize from any other submissions. We anticipate this sample to be a one or two day task. Reach out to us for a preliminary interview and we'll gladly pay you for your time spent completing this sample.
+- Hardhat
+- Ethers
+- Tests: chai/mocha
 
-## Goal
+# BUG FIXES & IMPROVEMENTS
 
-The primary goal of this work sample is to have you take the provided smart contract, evaluate it using SuperFarm's preferred environment, implement any improvements you believe are necessary, and produce a demonstration front-end interface to interact with the smart contract. Another very important goal of this work sample is to test your ability to effectively communicate technical details about your work via documentation and a final demonstration of your solution.
+- Added nonReentrant modifier to `purchaseItem` function.
+- Added payable modifier to `royaltyOwner` and `feeOwner` parameters.
+- Added comments replacing `//TODO`.
+- Changed the type of assetType parameter in PricePair struct from `uint256` to `enum` hence to fewer storage allocations and
+cheaper writing.
+- Changed the type of `token` variable from interface pointer to an address inside `ShopItem` struct.
+- Changed the type of `_items` parameter from an array of interface pointer to an address array inside `listItems` function accordingly. Wrapped address type parameter using interface pointer inside the function.
+- Removed redundant initialization `nextItemId = 0` from the constructor. Each type in Solidity has a default value. For example, boolean has a default value of false, integer has 0 by default and strings' default value is "".
+- Removed excessive require checks in the contract, modified require condition from`item.amount != 0` to `_amount > 0`
+in the `purchaseItem` and `removeItem` functions.
+- Fixed an iterator variable bug inside the `listItems` function.
+- Added view function to get all the global parametrs at once. Could be useful for handling and optimizing variable number of requests and its parameters to the node, i.e Infura, Alchemy, etc.
 
-## Reading
+# SUGGESTIONS
 
-Please take some time to familiarize yourself with the provided smart contract. Once you have done so, find the section labeled `TODO` and fill in the missing NatSpec comments. Then, provide a brief written explanation or summary of what the provided smart contract does and how it may be used.
+Suggestions that do not break the logic of the contract:\
+The following changes will alter the abi file. However, this will not result in a front-end or back-end behavior when replacing the old version of the file with the new one.
+- Update the solidity version to ^ 0.8.7. This will remove unnecessary SafeMath imports and pragma experimental ABIEncoderV2. As of ^ 0.8.0 ABI coder v2 is activated by default, arithmetic operations revert on underflow and overflow.
+- Add events to the contract, i.e `ItemPurchased (address indexed buyer, uint256 indexed itemId, uint256 amount, uint256 assetId)`, `ItemRemoved (uint256 indexed itemId, uint256 amount)` etc, hence to easy logging for any back-end type services. 
+- Kepping the `listItems` function's logic unchanged, I would rewrite the 'loop' part of the function using inline assembly to lower the gas consumption.\ 
 
-## Testing
+Suggestions that do break the logic of the contract:\
+- Since `listItems` function writes same PricePairs for every item, I'd make a map of PricePairs, for every item.id there is a set of PricePairs.
+- Make another non-custodial `listItems` type function with `external` modifier which accepts single IERC1155 hence to letting other people not only list their tokens but also pay the gas for it.
 
-SuperFarm uses [Hardhat](https://hardhat.org/) as its Ethereum development environment of choice. Our preferred library for interacting with smart contracts is [Ethers](https://docs.ethers.io/v5/). Please download and configure Hardhat. Then, using Ethers and [Mocha](https://mochajs.org/), write appropriate test cases for evaluating the provided smart contract. Feel free to use any existing [OpenZeppelin](https://openzeppelin.com/contracts/) contracts, custom mock contracts, or helper utility functions that you need. We are looking for a robust set of unit tests.
+# Etherscan verification
 
-## Improving
-
-Once you've evaluated the provided smart contract, please implement any fixes or improvements you can think of. Try not to alter the fundamental contract too radically; we are trying to evaluate you on your ability to work iteratively with the sample that has been given to you. Make sure to write unit tests to validate that the contract still behaves correctly given any edits that you make.
-
-If you choose to make no edits to the smart contract, please provide a written explanation of why you believe the existing smart contract requires no improvements.
-
-## Deploying
-
-Please deploy the provided smart contract to a test network of your choice using a deployment script in Hardhat. Use [this Hardhat plugin](https://hardhat.org/plugins/nomiclabs-hardhat-etherscan.html) to verify the contract code on the test network. In your final pull request include the smart contract address, test network, and an [Etherscan](https://etherscan.io/) link to the deployed contract.
-
-## Interfacing
-
-SuperFarm has chosen to use [Vue3](https://v3.vuejs.org/) for building all of its frontend interfaces. Please create a Vue3 application to interface with your deployed smart contract using Ethers. You may assume that the user visiting your application has installed and unlocked their wallet via [MetaMask](https://metamask.io/). In your final pull request, include specific instructions with all details necessary for running and testing your application. Bonus points if you also host your application live somewhere.
-
-## Wrapping Up
-
-In your pull request, please include any supplementary documentation, diagrams, or media which might better demonstrate or explain your final product. Once you have opened your pull request, notify our team and we will arrange a time to have you walk us through your solution.
+Rinkeby:\
+- Shop contract address: 0x1918aa7de6b798371fa18BACF1792B6afad1244E
