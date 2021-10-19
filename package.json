@@ -2,7 +2,7 @@
   "name": "superfarm-sample",
   "version": "1.0.0",
   "description": "testing task",
-  "main": "index.js",
+  "main": "hardhat.config.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
