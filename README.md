@@ -30,4 +30,4 @@
 
 # CONTRACT DEPLOY INFO
 Shop contract deployed at rinkeby-testnet: 
-https://rinkeby.etherscan.io/address/0xc494aa57bFB0Ac9d7f654382bc248F0224d542bF
+https://rinkeby.etherscan.io/address/0xF4Df7456918501ae07cB7e229BefFb8C096Ec86A

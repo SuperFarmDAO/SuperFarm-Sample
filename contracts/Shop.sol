@@ -195,7 +195,7 @@ contract Shop is Ownable, ERC1155Holder, ReentrancyGuard {
                 }
                 pricePairLengths[count + j] = _pricePairs.length;
             }
-            count = count.add(ids.length);
+            count += ids.length;
 
             // Batch transfer the listed items to the Shop contract.
             item.safeBatchTransferFrom(
@@ -221,7 +221,7 @@ contract Shop is Ownable, ERC1155Holder, ReentrancyGuard {
             item.amount >= _amount && item.amount != 0,
             "Shop: There is not enough of your desired item to remove."
         );
-        inventory[_itemId].amount = inventory[_itemId].amount.sub(_amount);
+        inventory[_itemId].amount = inventory[_itemId].amount - _amount;
         item.token.safeTransferFrom(
             address(this),
             msg.sender,
@@ -278,19 +278,17 @@ contract Shop is Ownable, ERC1155Holder, ReentrancyGuard {
 
         // If the sentinel value for the Ether asset type is found, sell for Ether.
         if (sellingPair.assetType == AssetType.ETHER) {
-            uint256 etherPrice = sellingPair.price.mul(_amount);
+            uint256 etherPrice = sellingPair.price * _amount;
             require(
                 msg.value >= etherPrice,
                 "Shop: You did not send enough Ether to complete this purchase."
             );
-            uint256 feeValue = etherPrice.mul(feePercent).div(100000);
-            uint256 royaltyValue = etherPrice.mul(itemRoyaltyPercent).div(
-                100000
-            );
+            uint256 feeValue = (etherPrice * feePercent) / 100000;
+            uint256 royaltyValue = (etherPrice * itemRoyaltyPercent) / 100000;
             (bool success, ) = payable(feeOwner).call{value: feeValue}("");
             (success, ) = payable(royaltyOwner).call{value: royaltyValue}("");
             (success, ) = payable(owner()).call{
-                value: etherPrice.sub(feeValue).sub(royaltyValue)
+                value: etherPrice - feeValue - royaltyValue
             }("");
             // Returns change
             if (msg.value - etherPrice > 0) {
@@ -298,7 +296,7 @@ contract Shop is Ownable, ERC1155Holder, ReentrancyGuard {
                     value: msg.value - etherPrice
                 }("");
             }
-            inventory[_itemId].amount = inventory[_itemId].amount.sub(_amount);
+            inventory[_itemId].amount = inventory[_itemId].amount - _amount;
             item.token.safeTransferFrom(
                 address(this),
                 msg.sender,
@@ -310,15 +308,13 @@ contract Shop is Ownable, ERC1155Holder, ReentrancyGuard {
             // Otherwise, attempt to sell for an ERC20 token.
         } else {
             IERC20 sellingAsset = IERC20(sellingPair.asset);
-            uint256 tokenPrice = sellingPair.price.mul(_amount);
+            uint256 tokenPrice = sellingPair.price * _amount;
             require(
                 sellingAsset.balanceOf(msg.sender) >= tokenPrice,
                 "Shop: You do not have enough token to complete this purchase."
             );
-            uint256 feeValue = tokenPrice.mul(feePercent).div(100000);
-            uint256 royaltyValue = tokenPrice.mul(itemRoyaltyPercent).div(
-                100000
-            );
+            uint256 feeValue = (tokenPrice * feePercent) / 100000;
+            uint256 royaltyValue = (tokenPrice * itemRoyaltyPercent) / 100000;
             sellingAsset.safeTransferFrom(msg.sender, feeOwner, feeValue);
             sellingAsset.safeTransferFrom(
                 msg.sender,
@@ -328,9 +324,9 @@ contract Shop is Ownable, ERC1155Holder, ReentrancyGuard {
             sellingAsset.safeTransferFrom(
                 msg.sender,
                 owner(),
-                tokenPrice.sub(feeValue).sub(royaltyValue)
+                tokenPrice - feeValue - royaltyValue
             );
-            inventory[_itemId].amount = inventory[_itemId].amount.sub(_amount);
+            inventory[_itemId].amount = inventory[_itemId].amount - _amount;
             item.token.safeTransferFrom(
                 address(this),
                 msg.sender,

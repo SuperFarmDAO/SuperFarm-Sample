@@ -21,7 +21,6 @@ export interface TRADETOKENInterface extends utils.Interface {
   functions: {
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
-    "c_0x9e178e56(bytes32)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "mint(address,uint256,uint256,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
@@ -41,10 +40,6 @@ export interface TRADETOKENInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "balanceOfBatch",
     values: [string[], BigNumberish[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "c_0x9e178e56",
-    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
@@ -84,10 +79,6 @@ export interface TRADETOKENInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "balanceOfBatch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "c_0x9e178e56",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -224,11 +215,6 @@ export interface TRADETOKEN extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber[]]>;
 
-    c_0x9e178e56(
-      c__0x9e178e56: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
-
     isApprovedForAll(
       account: string,
       operator: string,
@@ -298,11 +284,6 @@ export interface TRADETOKEN extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
 
-  c_0x9e178e56(
-    c__0x9e178e56: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<void>;
-
   isApprovedForAll(
     account: string,
     operator: string,
@@ -371,11 +352,6 @@ export interface TRADETOKEN extends BaseContract {
       ids: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
-
-    c_0x9e178e56(
-      c__0x9e178e56: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     isApprovedForAll(
       account: string,
@@ -503,11 +479,6 @@ export interface TRADETOKEN extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    c_0x9e178e56(
-      c__0x9e178e56: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     isApprovedForAll(
       account: string,
       operator: string,
@@ -575,11 +546,6 @@ export interface TRADETOKEN extends BaseContract {
     balanceOfBatch(
       accounts: string[],
       ids: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    c_0x9e178e56(
-      c__0x9e178e56: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
