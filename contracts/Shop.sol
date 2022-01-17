@@ -16,7 +16,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
   This contract allows its owner to list NFT items for sale.
 */
 contract Shop is Ownable, ERC1155Holder, ReentrancyGuard {
-    using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     /**

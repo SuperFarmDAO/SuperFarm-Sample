@@ -44,6 +44,7 @@ export type ShopItemStructOutput = [string, BigNumber, BigNumber] & {
 
 export interface ShopInterface extends utils.Interface {
   functions: {
+    "c_0xbefdce6a(bytes32)": FunctionFragment;
     "changeFeeOwner(address)": FunctionFragment;
     "changeFeePercent(uint256)": FunctionFragment;
     "changeItemPrice(uint256,(uint8,address,uint256)[])": FunctionFragment;
@@ -71,6 +72,10 @@ export interface ShopInterface extends utils.Interface {
     "version()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "c_0xbefdce6a",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "changeFeeOwner",
     values: [string]
@@ -160,6 +165,10 @@ export interface ShopInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
+  decodeFunctionResult(
+    functionFragment: "c_0xbefdce6a",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "changeFeeOwner",
     data: BytesLike
@@ -273,6 +282,11 @@ export interface Shop extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    c_0xbefdce6a(
+      c__0xbefdce6a: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     changeFeeOwner(
       _newFeeOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -401,6 +415,11 @@ export interface Shop extends BaseContract {
 
     version(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
+
+  c_0xbefdce6a(
+    c__0xbefdce6a: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
 
   changeFeeOwner(
     _newFeeOwner: string,
@@ -531,6 +550,11 @@ export interface Shop extends BaseContract {
   version(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    c_0xbefdce6a(
+      c__0xbefdce6a: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     changeFeeOwner(
       _newFeeOwner: string,
       overrides?: CallOverrides
@@ -670,6 +694,11 @@ export interface Shop extends BaseContract {
   };
 
   estimateGas: {
+    c_0xbefdce6a(
+      c__0xbefdce6a: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     changeFeeOwner(
       _newFeeOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -788,6 +817,11 @@ export interface Shop extends BaseContract {
   };
 
   populateTransaction: {
+    c_0xbefdce6a(
+      c__0xbefdce6a: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     changeFeeOwner(
       _newFeeOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }

@@ -23,6 +23,7 @@ export interface TKNInterface extends utils.Interface {
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "c_0xdb997633(bytes32)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
@@ -53,6 +54,10 @@ export interface TKNInterface extends utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "c_0xdb997633",
+    values: [BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
@@ -112,6 +117,10 @@ export interface TKNInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "c_0xdb997633",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
@@ -243,6 +252,11 @@ export interface TKN extends BaseContract {
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    c_0xdb997633(
+      c__0xdb997633: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
+
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
     decreaseAllowance(
@@ -330,6 +344,11 @@ export interface TKN extends BaseContract {
 
   balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+  c_0xdb997633(
+    c__0xdb997633: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<void>;
+
   decimals(overrides?: CallOverrides): Promise<number>;
 
   decreaseAllowance(
@@ -416,6 +435,11 @@ export interface TKN extends BaseContract {
     ): Promise<boolean>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    c_0xdb997633(
+      c__0xdb997633: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -562,6 +586,11 @@ export interface TKN extends BaseContract {
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+    c_0xdb997633(
+      c__0xdb997633: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     decreaseAllowance(
@@ -655,6 +684,11 @@ export interface TKN extends BaseContract {
 
     balanceOf(
       account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    c_0xdb997633(
+      c__0xdb997633: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
