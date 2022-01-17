@@ -108,7 +108,7 @@ contract Shop is ERC1155Holder, Ownable, ReentrancyGuard {
         feePercent = _feePercent;
         itemRoyaltyPercent = _itemRoyaltyPercent;
         royaltyOwner = _royaltyOwner;
-        nextItemId = 0;
+        nextItemId;
     }
 
     /**
