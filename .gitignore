@@ -1,0 +1,17 @@
+node_modules
+package-lock.json
+.env
+!.env\S*
+artifacts
+cache
+coverage
+coverage.json
+node_modules
+.env
+coverage
+coverage.json
+typechain
+
+#Hardhat files
+cache
+artifacts
