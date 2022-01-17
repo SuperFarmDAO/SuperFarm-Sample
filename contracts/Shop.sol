@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
   This contract allows its owner to list NFT items for sale.
 */
-contract Shop is ERC1155Holder, Ownable, ReentrancyGuard {
+contract Shop is Ownable, ERC1155Holder, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -148,6 +148,10 @@ contract Shop is ERC1155Holder, Ownable, ReentrancyGuard {
     ) external {
         require(_items.length > 0, "Shop: You must list at least one item.");
         require(
+            _pricePairs.length > 0,
+            "Shop: You must set at least one price pair for item."
+        );
+        require(
             _items.length == _ids.length,
             "Shop: Items length cannot be mismatched with IDs length."
         );
@@ -237,6 +241,10 @@ contract Shop is ERC1155Holder, Ownable, ReentrancyGuard {
         external
         onlyOwner
     {
+        require(
+            _pricePairs.length > 0,
+            "Shop: You must set at least one price pair for item."
+        );
         for (uint256 i = 0; i < _pricePairs.length; i++) {
             prices[_itemId][i] = _pricePairs[i];
         }

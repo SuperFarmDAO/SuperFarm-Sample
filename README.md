@@ -10,6 +10,7 @@
 - Optimized listItems function via add variable in memory, for not to rewrite storage in a loop
 - Found and fixed iterator related bug in listItems function.
 - Added ReentrancyGuard inheritance for secure by reentrancy attack.
+- Added requires for listItems and changeItemPrice functions that pricePairs array must contain at least one value.
 - Removed several requirements in the PurchaseItem function due to their overlap with others.
 - Added functionality for return change in cases when items bought for ether in purchaseItem function. 
 - Changed fee, royalties and owners profit transfers with idea of change returns.

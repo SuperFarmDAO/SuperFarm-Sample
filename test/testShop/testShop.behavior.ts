@@ -79,6 +79,13 @@ export function shouldBehaveCorrectly(): void {
         )).to.be.revertedWith("Shop: You must list at least one item.")
 
         await expect(this.instance.listItems(
+            [],
+            [this.tradeToken.address],
+            [[TradeTokens.sword.id, TradeTokens.shield.id, TradeTokens.excalibur.id]],
+            [[TradeTokens.sword.amount, TradeTokens.shield.amount, TradeTokens.excalibur.amount]]
+        )).to.be.revertedWith("Shop: You must set at least one price pair for item.")
+
+        await expect(this.instance.listItems(
             PricePairs,
             [this.tradeToken.address],
             [[TradeTokens.sword.id, TradeTokens.shield.id, TradeTokens.excalibur.id], [0]],
@@ -160,6 +167,9 @@ export function shouldBehaveCorrectly(): void {
     })
 
     it("should change prices correctly", async function () {
+        //check require
+        await expect(this.instance.changeItemPrice(1, [])).to.be.revertedWith("Shop: You must set at least one price pair for item.")
+
         let newPricePairs = [
             { assetType: 1, asset: this.hre.ethers.constants.AddressZero, price: ethers.utils.parseEther("3") },
             { assetType: 2, asset: this.paymentToken.address, price: ethers.utils.parseEther("7") }
