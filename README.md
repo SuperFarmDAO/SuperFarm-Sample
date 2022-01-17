@@ -8,7 +8,7 @@
 - Added enum and changed type of assetType(uint256) in the PricePair struct to enum that created enum and reordered this struct for better slot configuration.
 - Changed visibility of nextItemId to public and removed getInventoryCount function.
 - Optimized listItems function via add variable in memory, for not to rewrite storage in a loop
-- Finded and fixed iterator related bug in listItems function.
+- Found and fixed iterator related bug in listItems function.
 - Added ReentrancyGuard inheritance for secure by reentrancy attack.
 - Removed several requirements in the PurchaseItem function due to their overlap with others.
 - Added functionality for return change in cases when items bought for ether in purchaseItem function. 
